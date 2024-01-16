@@ -10,7 +10,7 @@ axiosClient.interceptors.request.use((config)=>{
 });
 
 
-axios.interceptors.response.use((response)=>{
+axiosClient.interceptors.response.use((response)=>{
     return response;
 },(error)=>{
     try {
