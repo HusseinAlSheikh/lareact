@@ -1,5 +1,5 @@
 import {Link} from "react-router-dom";
-import {useRef} from 'react';
+import {useRef, useState} from 'react';
 import axiosClient from "../axios-client";
 import {useStateContext} from "../contexts/ContextProvider";
 
@@ -8,6 +8,7 @@ export default function Signup() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const passwordConfirmationRef = useRef();
+    const [errors,setErrors] = useState(null);
 
     const {setUser,setToken} = useStateContext();
 
@@ -19,6 +20,7 @@ export default function Signup() {
           password: passwordRef.current.value,
           password_confirmation: passwordConfirmationRef.current.value,
         };
+        setErrors(null);
         axiosClient.post('/signup',payload).then(({data})=>{
             setUser(data.user);
             setToken(data.token);
@@ -27,7 +29,7 @@ export default function Signup() {
             console.log(err);
             if (response && response.status == 422){
                 //--- validation error
-                console.log(response.data.errors)
+                setErrors(response.data.errors);
             }
         });
     };
@@ -39,6 +41,13 @@ export default function Signup() {
                     <h1 className="title">
                         SignUp into laravel react
                     </h1>
+                    {errors && 
+                        <div className="alert">
+                            {Object.keys(errors).map(key=>(
+                                <p key={key}>{errors[key][0]}</p>
+                            ))}
+                        </div>
+                    }
                     <input type="text" placeholder="Full Name" ref={nameRef}/>
                     <input type="email" placeholder="Email" ref={emailRef}/>
                     <input type="password" placeholder="Password" ref={passwordRef}/>

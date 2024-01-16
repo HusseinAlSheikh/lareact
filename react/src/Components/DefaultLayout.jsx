@@ -1,8 +1,10 @@
 import { Outlet ,Navigate,Link} from "react-router-dom";
 import {useStateContext} from "../contexts/ContextProvider";
+import { useEffect } from "react";
+import axiosClient from "../axios-client";
 
 export default function DefaultLayout(){
-    const {user,token} = useStateContext();
+    const {user,token,setUser,setToken} = useStateContext();
 
     if (!token){
         return <Navigate to="/login"/>
@@ -11,7 +13,25 @@ export default function DefaultLayout(){
 
     const logoutHandler = (event) =>{
         event.preventDefault();
+
+        axiosClient.post('/logout')
+        .then(()=>{
+            setUser({});
+            setToken(null);
+        });
     }
+
+    useEffect(()=>{
+
+        axiosClient.get('/user')
+        .then(({data})=>{
+            setUser(data);
+        }).catch(err => {
+            console.error(err);
+        });
+        console.log('effect process');
+    },[]);
+
 
     return (
         <div id="defaultLayout">
@@ -25,7 +45,7 @@ export default function DefaultLayout(){
                         Header
                     </div>
                     <div>
-                        {user.name}
+                        {user && user.name}
                         <a className="btn-logout" href='#' onClick={logoutHandler}>Logout</a>
                     </div>
                 </header>
